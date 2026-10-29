@@ -42,3 +42,11 @@ Después de acceso privado y persistencia: desplegar en Vercel, conectado al rep
 El usuario publicó previamente el entorno de Codex y pidió no reaplicar configuraciones anteriores ni publicar el entorno por cuenta del agente. Esta petición de subir el proyecto a GitHub sí autoriza el commit y push del dashboard y de este contexto. No implica publicar el entorno ni desplegar una web pública.
 
 Usar el checkout existente: cada tarea de nube ya está aislada; no crear worktrees salvo petición explícita. No hay secretos en este repositorio; `.env` y sus variantes están ignorados.
+
+## Actualización: integración de Supabase (29 oct 2026)
+
+Se leyó este contexto y se inspeccionó Panel de washtogo con el plugin Supabase. Referencia confirmada: `mpznsjnirpmhswqzymek`. Tablas existentes en public: businesses, products, orders, order_items, confirmaciones, admin_usuarios; todas con RLS. Se conservaron sin cambios.
+
+Se aplicó la migración remota `ikarodb_private_progress`: tablas `ikarodb_members` (lista administrativa de correos autorizados) e `ikarodb_progress` (documento de avance por usuario, revisión para concurrencia). Restricciones, políticas y objetos nuevos llevan `ikarodb_`. El correo indicado por el usuario quedó autorizado; no se publica aquí. No se creó una cuenta Auth ni se enviaron mensajes. Su dueño deberá crearla y confirmar el correo mediante la nueva pantalla. Auth global sigue intacto; permite registro por email y exige confirmación.
+
+El código ahora usa supabase-js fijado en package-lock, inicio de sesión/registro, acceso por RLS, guardado serializado y revisión optimista, errores visibles, exportación/importación explícita. No mezcla automáticamente datos locales anteriores. Consultar README para configuración, limitaciones y validación. Falta completar el acceso con la cuenta real del usuario y desplegar en Vercel; no se ha publicado el entorno ni desplegado la web.

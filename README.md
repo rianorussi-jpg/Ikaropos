@@ -1,44 +1,39 @@
-# ICAROPOS · Dashboard de seguimiento
+# ICAROPOS · Dashboard personal
 
-Dashboard privado de desarrollo (interfaz en español) construido con JavaScript y Vite. Este repositorio contiene el seguimiento del proyecto, no el POS ni el panel de los restaurantes.
+Seguimiento del desarrollo del proyecto, separado del POS y del panel de restaurantes. Cuatro etapas, 49 tareas, notas/evidencia, filtros y pagos manuales basados en la cotización por $37,000 MXN. Las fechas documentales y el checklist no implican aceptación ni pagos recibidos.
 
 ## Desarrollo
 
-Requiere Node.js 22 o 24 y npm. Desde `/workspace/Ikaropos` (o la raíz del checkout):
+Node.js 22 o 24. Ejecutar desde la raíz:
 
 ```sh
 npm ci
+cp .env.example .env.local
 npm run dev
-```
-
-```sh
 npm test
 npm run build
-npm run preview
 ```
 
-El entorno de cada tarea ya está aislado: usar el checkout existente, sin crear worktrees salvo petición explícita.
+Las dos variables de `.env.example` identifican el proyecto Panel y su clave publicable. Son configuración de cliente; nunca agregar claves secretas ni `service_role`. Configurar las mismas variables en el futuro despliegue. `.env.local` está ignorado.
 
-## Funcionalidad
+## Acceso privado y persistencia
 
-- Cuatro etapas tomadas de `CotizacionICAROPOS 2.pdf` (Enla), con fechas documentales y pagos por $37,000 MXN.
-- Checklist, estados pendiente/en curso/bloqueada/completada, notas y evidencia por tarea.
-- Porcentaje calculado por tareas completadas, con igual peso; no representa horas ni aceptación contractual.
-- Búsqueda y filtro de estado. Registro manual de pagos separado de la entrega técnica.
-- Requisitos adicionales de la conversación identificados: Windows, Supabase por negocio y venta sin internet.
-- Guardado local por navegador; exportación e importación JSON con validación y confirmación de reemplazo.
-- Todas las tareas y pagos comienzan pendientes. El plan no implica funcionalidades implementadas.
+Supabase Panel, organización washtogo, referencia `mpznsjnirpmhswqzymek`. Iniciar sesión con correo y contraseña. Para una cuenta nueva, usar **Crear mi cuenta**, confirmar el correo recibido y volver al dashboard para iniciar sesión. El proyecto requiere confirmación por correo. No se cambiaron configuración global, redirecciones ni plantillas de Auth. Si la confirmación redirige a otra app existente del proyecto, volver manualmente a este dashboard tras confirmar.
 
-## Persistencia y siguiente paso
+Solo los correos provisionados por el administrador en `ikarodb_members` tienen acceso. El registro por sí solo no autoriza. El usuario no puede añadir miembros. Las políticas usan la identidad de Auth y restringen `ikarodb_progress` al propietario. Los correos de la lista no se incluyen en este repositorio público.
 
-No hay base de datos, autenticación ni sincronización remota en esta versión. El guardado usa `localStorage`; borrar los datos del navegador elimina el avance. Exportar respaldos periódicamente. Los respaldos contienen las notas: no incluir credenciales ni datos sensibles. Si el navegador impide guardar, la interfaz lo avisa.
+Se guarda un documento validado de versión 1 por cuenta: tareas (estado y nota), pagos y número de revisión. Las escrituras se serializan y comparan la revisión para no sobrescribir avances de otro dispositivo. La app muestra errores y conserva el estado en memoria para exportarlo; tras un conflicto bloquea nuevas ediciones hasta recargar. Exportar antes de recargar cuando haya cambios pendientes. Cerrar la pestaña puede perder cambios aún no confirmados. No hay modo de edición sin conexión.
 
-Para seguimiento desde varios dispositivos, el siguiente paso recomendado es un proyecto Supabase exclusivo del dashboard, con Supabase Auth, acceso restringido a usuarios autorizados y RLS. Entidades: proyecto, etapas, tareas, notas/evidencias, pagos y registro de cambios. El estado remoto debe prevalecer tras autenticación y las actualizaciones deben gestionar conflictos. Nunca incluir claves administrativas en el cliente. Esta conexión aún no está implementada ni verificada y no depende de las bases operativas de los restaurantes.
+Los avances anteriores de `icaropos-project-v1` no se importan automáticamente. Exportar el JSON desde la versión anterior e importarlo explícitamente tras iniciar sesión. Importar reemplaza el avance remoto de la cuenta tras confirmación. Las notas de los respaldos pueden contener información privada; no registrar contraseñas ni claves.
 
-El inicio offline del POS y su sincronización pertenecen al futuro repositorio del POS; este dashboard únicamente les da seguimiento.
+## Base de datos
 
-## Origen del alcance
+La migración remota `ikarodb_private_progress` ya se aplicó al proyecto Panel. `database/ikarodb_setup.sql` documenta el DDL aplicado; no volver a ejecutarlo sobre ese proyecto. Todos los nuevos objetos de la aplicación llevan `ikarodb_`, incluidas restricciones y políticas. No se alteraron tablas, datos ni políticas anteriores. Para otra base, revisar su estructura antes de aplicar este SQL y provisionar su lista de correos autorizados por un canal administrativo.
 
-El PDF es una cotización del POS, no un diseño del dashboard. Sus cuatro entregables se desglosaron en `src/data.js`. Fechas: 7 y 22 de octubre, 6 y 21 de noviembre de 2026. Los acuerdos de conversación están etiquetados por separado. No se agregaron supuestos de pagos recibidos, avance previo o integraciones externas terminadas.
+## Validación
 
-No se ha desplegado la web. El contexto para continuar está en `CONTEXTO.md`. Un despliegue público de esta versión no tendrá protección de acceso.
+`npm test`: cuatro pruebas originales y cuatro de persistencia remota con cliente simulado (autorización, carga, primera escritura, errores y conflicto). `npm run build`: compilación de producción.
+
+También se verificó RLS en Panel dentro de transacciones revertidas: acceso autorizado, lectura/escritura denegada a otra identidad, escritura con revisión antigua rechazada y ausencia de permisos anónimos o de autoautorización. No quedaron filas de prueba. Pantalla de acceso comprobada en el navegador integrado. El recorrido autenticado completo con una cuenta real queda pendiente de que su dueño cree y confirme la cuenta; no se conoce ni se necesita su contraseña. Chromium automatizado no pudo arrancar por restricciones del sandbox de macOS.
+
+No se ha desplegado en Vercel. La siguiente etapa es revisar la integración, completar el inicio de sesión con la cuenta del usuario y preparar el despliegue autorizado.
