@@ -1,0 +1,7 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {tasks,phases,progress,validateBackup} from '../src/data.js';
+test('cotización: cuatro pagos, importe y tareas con identificadores únicos',()=>{assert.equal(phases.length,4);assert.equal(phases.reduce((a,p)=>a+p.amount,0),37000);assert.equal(new Set(tasks.map(t=>t.id)).size,tasks.length);assert.ok(tasks.length>40);});
+test('avance real: solo completadas, no tareas activas ni bloqueadas',()=>{const sample=tasks.slice(0,4);const state={[sample[0].id]:{status:'done'},[sample[1].id]:{status:'active'},[sample[2].id]:{status:'blocked'}};assert.equal(progress(sample,state),25);assert.equal(progress([],{}),0);});
+test('respaldo conserva estados, notas y pagos y descarta claves desconocidas',()=>{const state={version:1,tasks:{[tasks[0].id]:{status:'done',note:'Prueba verificada'},unknown:{status:'done',note:''}},payments:{base:true,sales:false}};const result=validateBackup(state);assert.equal(result.tasks[tasks[0].id].note,'Prueba verificada');assert.equal(result.payments.base,true);assert.equal(result.tasks.unknown,undefined);assert.equal(result.payments.admin,false);});
+test('rechaza respaldos incompatibles y estados inválidos',()=>{assert.throws(()=>validateBackup({version:2,tasks:{}}));assert.throws(()=>validateBackup({version:1,tasks:{[tasks[0].id]:{status:'invalid',note:''}}}));assert.throws(()=>validateBackup({version:1,tasks:[]}));});
