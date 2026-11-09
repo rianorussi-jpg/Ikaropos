@@ -37,3 +37,12 @@ La migración remota `ikarodb_private_progress` ya se aplicó al proyecto Panel.
 También se verificó RLS en Panel dentro de transacciones revertidas: acceso autorizado, lectura/escritura denegada a otra identidad, escritura con revisión antigua rechazada y ausencia de permisos anónimos o de autoautorización. No quedaron filas de prueba. Pantalla de acceso comprobada en el navegador integrado. El recorrido autenticado completo con una cuenta real queda pendiente de que su dueño cree y confirme la cuenta; no se conoce ni se necesita su contraseña. Chromium automatizado no pudo arrancar por restricciones del sandbox de macOS.
 
 No se ha desplegado en Vercel. La siguiente etapa es revisar la integración, completar el inicio de sesión con la cuenta del usuario y preparar el despliegue autorizado.
+
+
+## Rediseño de seguimiento · 9 nov 2026 · 0.2.0
+
+Se sustituyó la interfaz completa: navegación superior, resumen independiente con avance general y ruta de cuatro etapas, acceso al trabajo en curso, pantalla por etapa con secciones plegables y porcentajes por sección. Evidencia cerrada inicialmente para evitar muros de notas; búsqueda por título y contenido de evidencia, filtros de estado y guardado automático existentes. Pagos en pantalla propia con total registrado/restante, separados del desarrollo. Alcance y acceso privado rediseñados. Respaldos agrupados en un menú. Interfaz adaptable a móvil, navegación lleva al comienzo de la pantalla.
+
+Se conservaron los 49 identificadores, estados, evidencia y pagos, Auth/Supabase, políticas y revisión optimista. Sin migraciones ni cambios de datos remotos. El POS Electron es otro proyecto y no se modifica en este repositorio.
+
+Validación: ocho pruebas de datos/respaldos/autorización/concurrencia y compilación de producción; revisión de navegador con copia aislada del documento real de avance y adaptador remoto ficticio fuera del repo. Casilla, estado, evidencia, búsqueda dentro de notas y filtros comprobados; móvil de 390px sin desbordamiento horizontal. La exportación conserva su implementación anterior; la prueba de descarga mediante navegador integrado no concluyó por timeout de la herramienta. Capturas y reporte en outputs/ICAROPOS-Dashboard, fuera del repositorio. El adaptador de prueba y los datos del usuario no forman parte de la compilación publicada.
